@@ -1,101 +1,256 @@
+'use client';
+
 import Image from "next/image";
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+
+// Mock data for exoplanets with expanded quiz questions
+const exoplanets = [
+  {
+    id: 1,
+    name: "Kepler-16b",
+    image: "https://www.nasa.gov/wp-content/uploads/2023/03/587854main_Kepler16_planetpov_art_full.jpg",
+    questions: [
+      {
+        question: "Which type of star system is Kepler-16b in?",
+        options: ["Single star", "Binary star", "Triple star", "Rogue planet"],
+        answer: "Binary star"
+      },
+      {
+        question: "What is Kepler-16b often nicknamed?",
+        options: ["Tatooine", "Hoth", "Endor", "Alderaan"],
+        answer: "Tatooine"
+      },
+      {
+        question: "What is the approximate mass of Kepler-16b compared to Jupiter?",
+        options: ["0.3 times", "0.5 times", "1 time", "2 times"],
+        answer: "0.3 times"
+      },
+      {
+        question: "In what year was Kepler-16b discovered?",
+        options: ["2009", "2011", "2013", "2015"],
+        answer: "2011"
+      }
+    ]
+  },
+  {
+    id: 2,
+    name: "HD 189733 b",
+    image: "https://assets.newatlas.com/dims4/default/201a9d3/2147483647/strip/true/crop/963x642+77+0/resize/1200x800!/quality/90/?url=http%3A%2F%2Fnewatlas-brightspot.s3.amazonaws.com%2Farchive%2Fhd-189733b-exoplanet-color-first-measurement-hubble.jpg",
+    questions: [
+      {
+        question: "What is the most notable feature of HD 189733 b's atmosphere?",
+        options: ["Methane", "Water vapor", "Carbon dioxide", "Silicate clouds"],
+        answer: "Silicate clouds"
+      },
+      {
+        question: "What is the estimated surface temperature of HD 189733 b?",
+        options: ["500°C", "1000°C", "1500°C", "2000°C"],
+        answer: "1000°C"
+      },
+      {
+        question: "What type of exoplanet is HD 189733 b?",
+        options: ["Super-Earth", "Mini-Neptune", "Hot Jupiter", "Ice Giant"],
+        answer: "Hot Jupiter"
+      },
+      {
+        question: "What color does HD 189733 b appear to be?",
+        options: ["Red", "Blue", "Green", "White"],
+        answer: "Blue"
+      }
+    ]
+  },
+  {
+    id: 3,
+    name: "TRAPPIST-1e",
+    image: "https://www.universetoday.com/wp-content/uploads/2018/05/TRAPPIST-1e_Artists_Impression-e1555184830466.png",
+    questions: [
+      {
+        question: "How many planets are in the TRAPPIST-1 system?",
+        options: ["5", "6", "7", "8"],
+        answer: "7"
+      },
+      {
+        question: "What type of star is TRAPPIST-1?",
+        options: ["Red dwarf", "Yellow dwarf", "White dwarf", "Blue giant"],
+        answer: "Red dwarf"
+      },
+      {
+        question: "Which zone is TRAPPIST-1e located in?",
+        options: ["Hot zone", "Warm zone", "Habitable zone", "Cold zone"],
+        answer: "Habitable zone"
+      },
+      {
+        question: "Approximately how long is a year on TRAPPIST-1e?",
+        options: ["6 Earth days", "12 Earth days", "24 Earth days", "365 Earth days"],
+        answer: "6 Earth days"
+      }
+    ]
+  }
+];
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [selectedPlanet, setSelectedPlanet] = useState<typeof exoplanets[0] | null>(null);
+  const [quizStarted, setQuizStarted] = useState(false);
+  const [showExploration, setShowExploration] = useState(false);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+  const [score, setScore] = useState(0); // Add score state
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  const startExploring = () => {
+    // Change the background image
+    document.body.style.backgroundImage = "url('https://cdn.mos.cms.futurecdn.net/HuGGeENt6kGyixe3hT9tnY.jpg')";
+    
+    setShowExploration(true);
+  };
+
+  const startQuiz = (planet: typeof exoplanets[0]) => {
+    setSelectedPlanet(planet);
+    setQuizStarted(true);
+    setCurrentQuestionIndex(0);
+    setSelectedAnswer(null);
+    setIsCorrect(null);
+  };
+
+  const handleAnswerSelect = (answer: string) => {
+    setSelectedAnswer(answer);
+    if (selectedPlanet) {
+      const currentQuestion = selectedPlanet.questions[currentQuestionIndex];
+      setIsCorrect(answer === currentQuestion.answer);
+      if (answer === currentQuestion.answer) {
+        setScore(score + 1); // Increment score for correct answer
+      }
+    }
+  };
+
+  const nextQuestion = () => {
+    if (selectedPlanet && currentQuestionIndex < selectedPlanet.questions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      setSelectedAnswer(null);
+      setIsCorrect(null);
+    } else {
+      // Quiz finished
+      setQuizStarted(false);
+      setSelectedPlanet(null);
+      // Optionally, you can display the score here
+      alert(`Your score: ${score} out of ${selectedPlanet.questions.length}`); // Display score
+      setScore(0); // Reset score for next quiz
+    }
+  };
+
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-center relative overflow-hidden">
+      <div className="relative z-10 p-8 md:p-24 text-white max-w-4xl w-full">
+        <motion.h1 
+          className="text-4xl md:text-6xl font-bold mb-8 text-center text-blue-300"
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          Exoplanet Adventure
+        </motion.h1>
+        {!showExploration ? (
+          <motion.div 
+            className="flex flex-col items-center space-y-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
           >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            <button
+              id="startExploringButton" // Add an ID here
+              onClick={startExploring}
+              className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-3 px-6 rounded-full w-64 transition-all duration-300 transform hover:scale-105"
+            >
+              Start Exploring
+            </button>
+            <button className="bg-purple-500 hover:bg-purple-400 text-white font-bold py-3 px-6 rounded-full w-64 transition-all duration-300 transform hover:scale-105">
+              Resources
+            </button>
+            <button className="bg-green-500 hover:bg-green-400 text-white font-bold py-3 px-6 rounded-full w-64 transition-all duration-300 transform hover:scale-105">
+              Leaderboard
+            </button>
+            <button className="bg-red-500 hover:bg-red-400 text-white font-bold py-3 px-6 rounded-full w-64 transition-all duration-300 transform hover:scale-105">
+              Settings
+            </button>
+          </motion.div>
+        ) : (
+          <motion.div 
+            className="flex flex-col items-center space-y-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
           >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+            <h2 className="text-2xl md:text-3xl font-bold mb-4 text-blue-200">Choose an Exoplanet</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+              {exoplanets.map((planet) => (
+                <motion.div 
+                  key={planet.id} 
+                  className="text-center"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Image
+                    src={planet.image}
+                    alt={planet.name}
+                    width={200}
+                    height={200}
+                    className="rounded-full cursor-pointer hover:opacity-80 transition-opacity shadow-lg"
+                    onClick={() => startQuiz(planet)}
+                  />
+                  <p className="mt-2 font-semibold text-lg text-blue-100">{planet.name}</p>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {quizStarted && selectedPlanet && (
+          <motion.div 
+            className="mt-8 p-6 bg-gray-800 bg-opacity-80 rounded-lg w-full max-w-2xl mx-auto"
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="flex justify-between items-center mb-4"> {/* Flex container for title and score */}
+              <h2 className="text-2xl md:text-3xl font-bold text-blue-300">Quiz: {selectedPlanet.name}</h2>
+              <p className="text-blue-100">Score: {score}/{selectedPlanet.questions.length}</p> {/* Display score here */}
+            </div>
+            <p className="text-blue-100 mb-4">{selectedPlanet.questions[currentQuestionIndex].question}</p>
+            <div className="space-y-2">
+              {selectedPlanet.questions[currentQuestionIndex].options.map((option, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleAnswerSelect(option)}
+                  className={`w-full text-left p-2 rounded ${
+                    selectedAnswer === option
+                      ? isCorrect
+                        ? 'bg-green-500'
+                        : 'bg-red-500'
+                      : 'bg-blue-500 hover:bg-blue-400'
+                  } transition-colors`}
+                  disabled={selectedAnswer !== null}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+            {selectedAnswer && (
+              <div className="mt-4">
+                <p className={`font-bold ${isCorrect ? 'text-green-400' : 'text-red-400'}`}>
+                  {isCorrect ? 'Correct!' : 'Incorrect!'}
+                </p>
+                <button
+                  onClick={nextQuestion}
+                  className="mt-2 bg-purple-500 hover:bg-purple-400 text-white font-bold py-2 px-4 rounded"
+                >
+                  Next Question
+                </button>
+              </div>
+            )}
+          </motion.div>
+        )}
+      </div>
+    </main>
   );
 }

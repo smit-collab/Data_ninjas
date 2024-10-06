@@ -1,0 +1,8 @@
+References.
+
+1. kepler 16 b image: 'https://www.nasa.gov/wp-content/uploads/2023/03/587854main_Kepler16_planetpov_art_full.jpg'
+   HD 189733 b", image: "https://assets.newatlas.com/dims4/default/201a9d3/2147483647/strip/true/crop/963x642+77+0/resize/1200x800!/quality/90/?url=http%3A%2F%2Fnewatlas-brightspot.s3.amazonaws.com%2Farchive%2Fhd-189733b-exoplanet-color-first-measurement-hubble.jpg
+   TRAPPIST-1e, imag:"https://www.universetoday.com/wp-content/uploads/2018/05/TRAPPIST-1e_Artists_Impression-e1555184830466.png"
+   background sapce image: https://cdn.mos.cms.futurecdn.net/HuGGeENt6kGyixe3hT9tnY.jpg 
+2. using cursor ai and cursor-sonnet to generate the code.
+3. 
